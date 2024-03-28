@@ -54,39 +54,7 @@
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-transparent">
-    <div class="container">
-        <a class="navbar-brand" href="#">Flight Search</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Contact</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav">
-                <li class="nav-item" th:if="${#strings.isEmpty(accessToken)}">
-                    <a class="nav-link" href="#">Login</a>
-                </li>
-                <li class="nav-item" th:if="${not #strings.isEmpty(accessToken)}">
-                    <a class="nav-link" href="#">My Page</a>
-                </li>
-                <li class="nav-item" th:if="${not #strings.isEmpty(accessToken)}">
-                    <a class="nav-link" href="#">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<button onclick="redirectToPage('/home')">Home</button>
 
 <div class="container mt-5">
     <h2>Flight Search</h2>
@@ -160,6 +128,34 @@
 
     populateAirportOptions();
 </script>
+<button onclick="redirectToPage('/login-page')">Login</button>
+<button onclick="redirectToPage('/mypage')">My Page</button>
+<button onclick="redirectToPage('/ticket')">My Ticket</button>
+<!--적용하기-->
+
+<script>
+    const host = 'http://' + window.location.host;
+
+    function redirectToPage(page) {
+        fetch('/checkLogin')
+            .then(response => response.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    // 로그인되어 있는 경우 해당 페이지로 이동
+                    window.location.href = host + page;
+                } else {
+                    // 로그인되어 있지 않은 경우 로그인 페이지로 이동
+                    alert("회원 검증을 위해 로그인 페이지로 이동합니다.");
+                    window.location.href = host + '/login-page?redirect=' + page;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+
+</script>
 
 <script>
     function submitFlightSearchForm() {
@@ -179,7 +175,6 @@
         // Redirect to the constructed URL
         window.location.href = "/flight/" + formattedStartDate + "/" + formattedEndDate + "/" + departure + "/" + destination;
     }
-
 </script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>

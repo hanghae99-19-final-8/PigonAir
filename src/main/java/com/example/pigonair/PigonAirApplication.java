@@ -2,19 +2,16 @@ package com.example.pigonair;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-import com.example.pigonair.domain.flight.service.FlightDataGenerator;
-
 @EnableJpaAuditing
-@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
+@SpringBootApplication
 public class PigonAirApplication {
 	public static void main(String[] args) {
-		// ConfigurableApplicationContext context =
 		SpringApplication.run(PigonAirApplication.class, args);
 
+		// 항공편 난수 생성 (100개)
+		// ConfigurableApplicationContext context =
 		// FlightDataGenerator flightDataGenerator = context.getBean(FlightDataGenerator.class);
 		//
 		// // Generate random flight data for 100 flights
