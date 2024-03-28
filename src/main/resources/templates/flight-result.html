@@ -11,24 +11,29 @@
             margin: 0;
             padding: 0;
         }
+
         h1 {
             text-align: center;
             color: #1E90FF;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
+
         th, td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: #1E90FF;
             color: white;
         }
+
         tr:hover {
             background-color: #f2f2f2;
         }
@@ -41,6 +46,8 @@
         <label for="orderBy">Order By:</label>
         <select name="orderBy" id="orderBy">
             <option value="id" th:selected="${orderBy == 'id'}">ID</option>
+            <option value="departureTime" th:selected="${orderBy == 'departureTime'}">Departure Time</option>
+            <option value="arrivalTime" th:selected="${orderBy == 'arrivalTime'}">Arrival Time</option>
             <!-- 다른 정렬 기준 추가 -->
         </select>
 
@@ -93,16 +100,23 @@
 </table>
 <div th:if="${totalPages > 1}">
     <div>
-        <a th:href="@{'/api/flight/' + ${startDate} + '/' + ${endDate} + '/' + ${departure} + '/' + ${destination} + '?page=1'}">First</a>
-        <a th:if="${currentPage > 1}" th:href="@{'/api/flight/' + ${startDate} + '/' + ${endDate} + '/' + ${departure} + '/' + ${destination} + '?page=' + ${currentPage - 1}}">Previous</a>
-        <span th:each="pageNum : ${#numbers.sequence(currentPage - (currentPage % 5 == 0 ? 4 : (currentPage % 5 - 1)), totalPages, 5)}">
-            <a th:href="@{'/api/flight/' + ${startDate} + '/' + ${endDate} + '/' + ${departure} + '/' + ${destination} + '?page=' + ${pageNum}}"><span th:text="${pageNum}"></span></a>
+        <a th:href="@{'/flight?page=1&orderBy=' + ${orderByVal} + '&orderDirection=' + ${orderDirectionVal}}">First</a>
+        <a th:if="${currentPage > 1}"
+           th:href="@{'/flight?page=' + ${currentPage - 1} + '&orderBy=' + ${orderByVal} + '&orderDirection=' + ${orderDirectionVal}}">Previous</a>
+
+        <!-- Display pagination links for 5 pages at a time -->
+        <span th:each="pageNum : ${#numbers.sequence(currentPage - 2 > 0 ? currentPage - 2 : 1,
+                                  currentPage + 2 <= totalPages ? currentPage + 2 : totalPages)}">
+            <a th:href="@{'/flight?page=' + ${pageNum} + '&orderBy=' + ${orderByVal} + '&orderDirection=' + ${orderDirectionVal}}"
+               th:class="${pageNum == currentPage ? 'current-page' : ''}">
+                <span th:text="${pageNum}"></span>
+            </a>
         </span>
-        <a th:if="${currentPage < totalPages}" th:href="@{'/api/flight/' + ${startDate} + '/' + ${endDate} + '/' + ${departure} + '/' + ${destination} + '?page=' + ${currentPage + 1}}">Next</a>
-        <a th:href="@{'/api/flight/' + ${startDate} + '/' + ${endDate} + '/' + ${departure} + '/' + ${destination} + '?page=' + ${totalPages}}">Last</a>
+
+        <a th:if="${currentPage < totalPages}"
+           th:href="@{'/flight?page=' + ${currentPage + 1} + '&orderBy=' + ${orderByVal} + '&orderDirection=' + ${orderDirectionVal}}">Next</a>
+        <a th:href="@{'/flight?page=' + ${totalPages} + '&orderBy=' + ${orderByVal} + '&orderDirection=' + ${orderDirectionVal}}">Last</a>
     </div>
 </div>
-
-
 </body>
 </html>
