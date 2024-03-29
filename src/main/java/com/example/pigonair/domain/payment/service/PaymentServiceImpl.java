@@ -46,7 +46,7 @@ public class PaymentServiceImpl implements PaymentService {
 		//결제 정보 생성
 		savePayInfo(requestDto.serialNumber(), reservation);
 		//좌석 이용불가 변경
-		updateSeatUnAvailable(reservation);
+		//updateSeatUnAvailable(reservation);
 
 		return new TicketResponseDto(reservation);
 	}

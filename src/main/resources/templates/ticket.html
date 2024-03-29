@@ -70,6 +70,7 @@
     </div>
     <div class="btn-container">
         <a href="/home" class="btn btn-primary">확인</a>
+        <button id="paymentButton" class="btn btn-primary">결제</button>
     </div>
 </div>
 <div class="container" th:unless="${responseDto.reservationId != null}">
@@ -79,5 +80,25 @@
         <a href="/home" class="btn btn-primary">확인</a>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // 결제 버튼 클릭 시 GET 요청 보내는 스크립트
+    $(document).ready(function () {
+        $('#paymentButton').click(function () {
+            $.ajax({
+                type: 'GET',
+                url: '/api/reservation',
+                success: function () {
+                    // 예약 내역 페이지로 이동
+                    window.location.href = '/reservation/reservation_history';
+                },
+                error: function (xhr, status, error) {
+                    // 에러 처리
+                    console.error(error);
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
