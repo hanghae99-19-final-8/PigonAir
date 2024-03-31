@@ -24,6 +24,17 @@ public class PaymentResponseDto {
 				reservation.isPayment()
 			);
 		}
+
+		public TicketResponseDto() {
+			this(
+				null,
+				null,
+				null,
+				null,
+				null,
+				false
+			);
+		}
 	}
 
 }

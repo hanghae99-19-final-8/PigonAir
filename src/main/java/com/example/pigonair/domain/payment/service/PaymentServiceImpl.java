@@ -2,6 +2,7 @@ package com.example.pigonair.domain.payment.service;
 
 import static com.example.pigonair.global.config.common.exception.ErrorCode.*;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -31,12 +32,12 @@ public class PaymentServiceImpl implements PaymentService {
 		Optional<Reservation> optionalReservation = reservationRepository.findById(requestDto.id());
 		if (optionalReservation.isEmpty()) {
 			// 예약을 찾지 못함 에러
-			throw new CustomException(RESERVATION_NOT_FOUND);
+			return null;
 		}
 		Reservation reservation = optionalReservation.get();
 
 		//결제 금액과 좌석 가격이 같은지 확인
-		if (reservation.getSeat().getPrice() != requestDto.paidAmount()) {
+		if (!Objects.equals(reservation.getSeat().getPrice(), requestDto.paidAmount())) {
 			// 결제 금액 불일치 에러
 			throw new CustomException(PAYMENT_AMOUNT_MISMATCH);
 		}
