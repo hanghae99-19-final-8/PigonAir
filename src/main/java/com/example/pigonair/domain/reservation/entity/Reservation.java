@@ -25,7 +25,7 @@ public class Reservation {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@OneToOne // 추후에 @ManyToOne
+	@ManyToOne // 추후에 @ManyToOne
 	private Member member;
 
 	@ManyToOne
