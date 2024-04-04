@@ -149,6 +149,7 @@ public class PaymentServiceTest {
 
 		//When //Then
 		assertThrows(CustomException.class, () -> paymentService.postPayProcess(requestDto));
+		assertFalse(reservation.isPayment());
 	}
 
 }
