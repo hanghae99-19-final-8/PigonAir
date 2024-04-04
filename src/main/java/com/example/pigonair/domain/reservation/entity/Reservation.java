@@ -28,7 +28,7 @@ public class Reservation {
 	@ManyToOne // 추후에 @ManyToOne
 	private Member member;
 
-	@ManyToOne
+	@OneToOne
 	private Seat seat;
 
 	@ManyToOne
