@@ -53,7 +53,7 @@ public class PaymentServiceTest {
 			.phoneNumber("00000000000")
 			.password("test1234")
 			.build();
-		return memberRepository.save(member); // Assuming you have a memberRepository
+		return memberRepository.save(member);
 	}
 
 	private Flight saveTestFlight() {
@@ -63,7 +63,7 @@ public class PaymentServiceTest {
 			.origin(Airport.CDG)
 			.destination(Airport.JFK)
 			.build();
-		return flightRepository.save(flight); // Assuming you have a flightRepository
+		return flightRepository.save(flight);
 	}
 
 	private Seat saveTestSeat(Flight flight) {
@@ -73,7 +73,7 @@ public class PaymentServiceTest {
 			.grade(1)
 			.isAvailable(true)
 			.build();
-		return seatRepository.save(seat); // Assuming you have a seatRepository
+		return seatRepository.save(seat);
 	}
 
 	private Reservation createAndSaveTestReservation(Flight flight, Member member, Seat seat) {
@@ -147,7 +147,7 @@ public class PaymentServiceTest {
 		PostPayRequestDto requestDto = new PostPayRequestDto(reservation.getId(), seat.getPrice() + 100,
 			"serialNumber123");
 
-		// When/Then
+		//When //Then
 		assertThrows(CustomException.class, () -> paymentService.postPayProcess(requestDto));
 	}
 
