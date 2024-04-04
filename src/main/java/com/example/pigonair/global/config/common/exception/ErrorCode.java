@@ -12,11 +12,11 @@ public enum ErrorCode {
 		HttpStatus.BAD_REQUEST),
 	FORBIDDEN("FORBIDDEN", "접근 권한이 없습니다. ADMIN에게 문의하세요.", HttpStatus.FORBIDDEN),
 	UNAUTHORIZED("UNAUTHORIZED", "로그인 후 이용할 수 있습니다. 계정이 없다면 회원 가입을 진행해주세요.", HttpStatus.UNAUTHORIZED),
-
 	RESERVATION_NOT_FOUND("RESERVATION_NOT_FOUND", "해당 예약을 찾을 수 없습니다", HttpStatus.NOT_FOUND),
 	PAYMENT_AMOUNT_MISMATCH("PAYMENT_AMOUNT_MISMATCH", "결제 금액과 선택한 좌석의 가격이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 	ALREADY_PAID_RESERVATION("ALREADY_PAID_RESERVATION", "이미 결제된 예약입니다.", HttpStatus.BAD_REQUEST),
-	UNAVAILABLE_SEAT("UNAVAILABLE_SEAT", "이용 불가능한 좌석입니다.", HttpStatus.BAD_REQUEST);
+	UNAVAILABLE_SEAT("UNAVAILABLE_SEAT", "이용 불가능한 좌석입니다.", HttpStatus.BAD_REQUEST),
+	NOT_EXITS_FLIGHT("NOT_EXITS_FLIGHT","해당하는 비행기가 존재하지 않습니다.",HttpStatus.BAD_REQUEST);
 	private final String key;
 	private final String message;
 	private final HttpStatus httpStatus;
