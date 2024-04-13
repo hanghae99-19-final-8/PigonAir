@@ -88,9 +88,21 @@ public class ReservationServiceImpl implements ReservationService {
         // Member member = getMember(userDetails);
         Member member = userDetails.getUser();
         // 해당 사용자의 예약 중 결제되지 않은 예약 가져오기
-        List<Reservation> reservations = reservationRepository.findByMemberAndIsPayment(member, false);
+        List<Object[]> reservationInfo = reservationRepository.findReservationInfoByMemberAndIsPaymentWithFlightAndSeat(
+            member, false);
         // responseDto 만들기
-        List<ReservationResponseDto> reservationResponseDtos = getReservationResponseDtos(reservations);
+        List<ReservationResponseDto> reservationResponseDtos = new ArrayList<>();
+        for (Object[] row : reservationInfo) {
+            Long id = (Long) row[0];
+            LocalDateTime departureDate = (LocalDateTime) row[1];
+            Airport origin = (Airport)row[2];
+            Airport destination = (Airport)row[3];
+            Long seatNumber = (Long) row[4];
+            Long price = (Long) row[5];
+
+            reservationResponseDtos.add(new ReservationResponseDto(id, departureDate, departureDate, origin.name(), destination.name(), seatNumber, price));
+        }
+
 
         return reservationResponseDtos;
     }
