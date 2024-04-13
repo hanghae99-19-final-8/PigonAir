@@ -207,7 +207,7 @@
                 } else {
                     // Redirect to the login page if not logged in
                     alert("로그인이 필요합니다.");
-                    window.location.href = host + '/login-page';
+                    window.location.href = host + '/login-page?redirect=' + page;
                 }
             })
             .catch(error => {
