@@ -1,6 +1,8 @@
 package com.example.pigonair.domain.flight.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,7 +22,9 @@ public class Flight {
 	private Long id;
 	private LocalDateTime departureTime;
 	private LocalDateTime arrivalTime;
+	@Enumerated(EnumType.STRING)
 	private Airport origin;
+	@Enumerated(EnumType.STRING)
 	private Airport destination;
 
 	@Builder
