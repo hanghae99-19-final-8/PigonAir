@@ -29,6 +29,10 @@ public class PageController {
 	public String myPage(@AuthenticationPrincipal UserDetails userDetails) {
 		return "mypage";
 	}
+	@GetMapping("/error-page")
+	public String errorPage(@AuthenticationPrincipal UserDetails userDetails) {
+		return "error";
+	}
 
 	@GetMapping("/favicon.ico")
 	@ResponseBody
