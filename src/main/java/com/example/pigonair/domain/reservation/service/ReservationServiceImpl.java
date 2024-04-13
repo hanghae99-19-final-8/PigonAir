@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.pigonair.domain.flight.entity.Airport;
 import com.example.pigonair.domain.flight.entity.Flight;
 import com.example.pigonair.domain.flight.repository.FlightRepository;
 import com.example.pigonair.domain.member.entity.Member;
@@ -144,25 +145,25 @@ public class ReservationServiceImpl implements ReservationService {
         return reservation;
     }
 
-    private static List<ReservationResponseDto> getReservationResponseDtos(List<Reservation> reservations) {
-        List<ReservationResponseDto> reservationResponseDtos = new ArrayList<>();
-        reservations.stream().forEach(reservation -> {
-            Long id = reservation.getId();
-            String name = reservation.getMember().getEmail();
-            Flight flight = reservation.getFlight();
-            LocalDateTime departureDate = flight.getDepartureTime();
-            LocalDateTime departureTime = flight.getDepartureTime();
-            String origin = flight.getOrigin().getFullName();
-            String destination = flight.getDestination().getFullName();
-            Long seatNumber = reservation.getSeat().getId();
-            Long price = reservation.getSeat().getPrice();
-            String phoneNumber = reservation.getMember().getPhoneNumber();
-            reservationResponseDtos.add(new ReservationResponseDto(id, name, departureDate, departureTime,
-                    origin, destination, seatNumber, price, phoneNumber));
-
-        });
-        return reservationResponseDtos;
-    }
+    // private static List<ReservationResponseDto> getReservationResponseDtos(List<Reservation> reservations) {
+    //     List<ReservationResponseDto> reservationResponseDtos = new ArrayList<>();
+    //     reservations.stream().forEach(reservation -> {
+    //         Long id = reservation.getId();
+    //         Flight flight = reservation.getFlight();
+    //         LocalDateTime departureDate = flight.getDepartureTime();
+    //         LocalDateTime departureTime = flight.getDepartureTime();
+    //         String origin = flight.getOrigin().getFullName();
+    //         String destination = flight.getDestination().getFullName();
+    //
+    //         Seat seat = reservation.getSeat();
+    //         Long seatNumber = seat.getId();
+    //         Long price = seat.getPrice();
+    //         reservationResponseDtos.add(new ReservationResponseDto(id,departureDate, departureTime,
+    //                 origin, destination, seatNumber, price));
+    //
+    //     });
+    //     return reservationResponseDtos;
+    // }
 
 
     private Reservation getReservation(Long reservation_id) {
