@@ -36,7 +36,8 @@ public class ReservationServiceImpl implements ReservationService {
 	@Transactional
 	public void saveReservation(ReservationRequestDto requestDto, UserDetailsImpl userDetails) {
 
-		Member member = getMember(userDetails); // 로그인 정보 확인 및 가져오기
+		// Member member = getMember(userDetails); // 로그인 정보 확인 및 가져오기
+        Member member = userDetails.getUser();
 
         Seat seat = getSeat(requestDto);      // 좌석 정보 확인 및 가져오기
 
@@ -84,7 +85,8 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<ReservationResponseDto> getReservations(UserDetailsImpl userDetails) {
         // 로그인 정보 확인 및 가져오기
-        Member member = getMember(userDetails);
+        // Member member = getMember(userDetails);
+        Member member = userDetails.getUser();
         // 해당 사용자의 예약 중 결제되지 않은 예약 가져오기
         List<Reservation> reservations = reservationRepository.findByMemberAndIsPayment(member, false);
         // responseDto 만들기
