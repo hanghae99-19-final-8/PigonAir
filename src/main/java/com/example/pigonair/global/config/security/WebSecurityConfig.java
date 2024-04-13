@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import com.example.pigonair.global.config.security.jwt.JwtAuthenticationFilter;
 import com.example.pigonair.global.config.security.jwt.JwtAuthorizationFilter;
+import com.example.pigonair.global.config.security.jwt.JwtExceptionFilter;
 import com.example.pigonair.global.config.security.jwt.JwtUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -125,7 +126,8 @@ public class WebSecurityConfig {
 				.requestMatchers(SWAGGER_URL_ARRAY).permitAll()
 				.anyRequest().authenticated()
 		);
-		http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
+		http.addFilterBefore(new JwtExceptionFilter(), UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.exceptionHandling((exceptionConfig) -> exceptionConfig
 				.authenticationEntryPoint(customAuthenticationEntryPoint)
