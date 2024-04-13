@@ -12,14 +12,12 @@ import org.springframework.security.core.parameters.P;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Getter
-@Table(name = "seat", indexes = {@Index(columnList = "flight_id")})
 public class Seat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "flight_id")
 	private Flight flight;
 
 	private Long price;

@@ -23,14 +23,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "reservation", indexes = {@Index(columnList = "member_id")})
 public class Reservation {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "member_id")
 	private Member member;
 
 	@OneToOne
