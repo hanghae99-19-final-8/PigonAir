@@ -18,8 +18,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "flight",	indexes = {
 	@Index(columnList = "departureTime"),
-	@Index(columnList = "origin"),
-	@Index(columnList = "destination")})
+	@Index(columnList = "origin, destination")})
 public class Flight {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
