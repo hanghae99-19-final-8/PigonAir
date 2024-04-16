@@ -49,6 +49,9 @@ dependencies {
     implementation group: 'com.squareup.retrofit2', name: 'converter-gson', version: '2.3.0'
     //Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    //java 8 localDateTime 직렬화 오류
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.5'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
 
     runtimeOnly 'com.h2database:h2'
