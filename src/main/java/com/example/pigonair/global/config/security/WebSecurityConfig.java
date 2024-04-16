@@ -136,8 +136,10 @@ public class WebSecurityConfig {
 			logout
 				.logoutUrl("/logout")
 				.addLogoutHandler((request, response, authentication) -> {
-					// 사실 굳이 내가 세션 무효화하지 않아도 됨.
-					// LogoutFilter가 내부적으로 해줌.
+					String accessToken = jwtUtil.getTokenFromRequest(request);
+					if (accessToken != null && !accessToken.isEmpty()) {
+						tokenService.removeTokenInfo(accessToken);
+					}
 					HttpSession session = request.getSession();
 					if (session != null) {
 						session.invalidate();

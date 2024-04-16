@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.pigonair.global.config.security.UserDetailsServiceImpl;
+import com.example.pigonair.global.config.security.refreshtoken.TokenService;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -24,22 +25,25 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
 	private final UserDetailsServiceImpl adminDetailsService;
+	private final TokenService tokenService;
 
-	public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl adminDetailsService) {
+	public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl adminDetailsService, TokenService tokenService) {
 		this.jwtUtil = jwtUtil;
 		this.adminDetailsService = adminDetailsService;
+		this.tokenService = tokenService;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws
 		ServletException,
 		IOException {
-		String tokenValue = jwtUtil.getTokenFromRequest(req);
+		String accessToken = jwtUtil.getTokenFromRequest(req);
 
-		if (StringUtils.hasText(tokenValue)) {
-			tokenValue = jwtUtil.substringToken(tokenValue);
-			jwtUtil.validateToken(tokenValue);
-			Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
+		if (StringUtils.hasText(accessToken)) {
+			accessToken = jwtUtil.substringToken(accessToken);
+			String email = tokenService.getRefreshTokenInfo(accessToken).get("email");
+			jwtUtil.validateToken(accessToken, email);
+			Claims info = jwtUtil.getUserInfoFromToken(accessToken);
 			setAuthentication(info.getSubject());
 		}
 
