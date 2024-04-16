@@ -30,7 +30,7 @@ public class PageController {
 		return "mypage";
 	}
 	@GetMapping("/error-page")
-	public String errorPage(@AuthenticationPrincipal UserDetails userDetails) {
+	public String errorPage() {
 		return "error";
 	}
 
