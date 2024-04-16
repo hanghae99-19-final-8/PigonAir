@@ -54,9 +54,17 @@ public class RedisCacheConfig {
 			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))  //redis 캐시 키 값 저장방식 - StringRedisSerializer
 			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(flightPageSerializer));// redis 캐시 정보값 저장방식 - GenericJackson2JsonRedisSerializer - json 문자열
 
+		RedisCacheConfiguration seatConfig = RedisCacheConfiguration.defaultCacheConfig()
+			.disableCachingNullValues()
+			.entryTtl(Duration.ofSeconds(2L))
+			.computePrefixWith(CacheKeyPrefix.simple())
+			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))  //redis 캐시 키 값 저장방식 - StringRedisSerializer
+			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));// redis 캐시 정보값 저장방식 - GenericJackson2JsonRedisSerializer - json 문자열
+
 		Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
 		redisCacheConfigurationMap.put("memberCacheStore", defaultConfig);
 		redisCacheConfigurationMap.put("flightCache", flightConfig);
+		redisCacheConfigurationMap.put("seatCache", seatConfig);
 
 		return RedisCacheManager.RedisCacheManagerBuilder
 			.fromConnectionFactory(connectionFactory)
