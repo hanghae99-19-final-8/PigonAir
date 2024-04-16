@@ -12,6 +12,7 @@ import com.example.pigonair.domain.member.dto.MemberRequestDto;
 import com.example.pigonair.global.config.common.exception.CustomException;
 import com.example.pigonair.global.config.common.exception.ErrorCode;
 import com.example.pigonair.global.config.security.UserDetailsImpl;
+import com.example.pigonair.global.config.security.refreshtoken.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
@@ -23,9 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	private final JwtUtil jwtUtil;
+	private final TokenService tokenService;
 
-	public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+	public JwtAuthenticationFilter(JwtUtil jwtUtil,
+		TokenService tokenService) {
 		this.jwtUtil = jwtUtil;
+		this.tokenService = tokenService;
 		setFilterProcessesUrl("/loginProcess");
 	}
 
@@ -55,10 +59,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		Authentication authResult) throws IOException, ServletException {
 		log.info("로그인 성공 및 JWT 생성");
 		String email = ((UserDetailsImpl)authResult.getPrincipal()).getUsername();
-		String token = jwtUtil.createToken(email);
-
-		jwtUtil.addJwtToCookie(token, response);
-		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+		String accessToken = jwtUtil.createToken(email);
+		String refreshToken = jwtUtil.createRefreshToken();
+		tokenService.setRefreshToken(accessToken, refreshToken, email);
+		jwtUtil.addJwtToCookie(accessToken, response);
+		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
 
 	}
 
