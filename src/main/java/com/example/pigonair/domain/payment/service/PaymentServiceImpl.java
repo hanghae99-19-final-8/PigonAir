@@ -5,6 +5,7 @@ import static com.example.pigonair.global.config.common.exception.ErrorCode.*;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private final PaymentRepository paymentRepository;
 	@Value("${iamport.impKey}")
 	private String impKey;
+	private final RabbitTemplate rabbitTemplate;
 
 	@Override
 	@Transactional
@@ -63,6 +65,12 @@ public class PaymentServiceImpl implements PaymentService {
 		savePayInfo(requestDto.serialNumber(), reservation);
 		//좌석 이용불가 변경
 		//updateSeatUnAvailable(reservation);
+		sendPaymentCompletedEvent(requestDto.id());
+
+	}
+
+	private void sendPaymentCompletedEvent(long paymentId) {
+		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", paymentId);
 	}
 
 	@Override
