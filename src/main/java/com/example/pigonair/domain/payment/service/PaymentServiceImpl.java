@@ -53,33 +53,36 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 		Reservation reservation = optionalReservation.get();
 
+		// 이미 결제된 예약인지 확인
+		if (reservation.isPayment()) {
+			throw new CustomException(ALREADY_PAID_RESERVATION);
+		}
+
 		//결제 금액과 좌석 가격이 같은지 확인
 		if (!Objects.equals(reservation.getSeat().getPrice(), requestDto.paidAmount())) {
 			// 결제 금액 불일치 에러
 			throw new CustomException(PAYMENT_AMOUNT_MISMATCH);
 		}
 
+
+
 		//결제 후 결제 여부 변경
 		reservation.updateIsPayment();
-		//결제 정보 생성
-		savePayInfo(requestDto.serialNumber(), reservation);
-		//좌석 이용불가 변경
-		//updateSeatUnAvailable(reservation);
-		sendPaymentCompletedEvent(requestDto.id());
+
+		sendPaymentCompletedEvent(requestDto);
 
 	}
 
-	private void sendPaymentCompletedEvent(long paymentId) {
-		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", paymentId);
+	private void sendPaymentCompletedEvent(PostPayRequestDto requestDto) {
+		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", requestDto);
 	}
 
 	@Override
 	@Transactional
-	public void savePayInfo(String serialNumber, Reservation reservation) {
-		Payment payment = new Payment(reservation, serialNumber);
-		if (paymentRepository.existsByReservationId(reservation.getId())) {
-			throw new CustomException(ALREADY_PAID_RESERVATION);
-		}
+	public void savePayInfo(PostPayRequestDto postPayRequestDto) { // 추후 데이터 삽입 시 외래키만 삽입하는 것으로 변경하는 것 고려
+		Reservation reservation = reservationRepository.findById(postPayRequestDto.id()).orElseThrow(() ->
+			new CustomException(RESERVATION_NOT_FOUND));
+		Payment payment = new Payment(reservation, postPayRequestDto.serialNumber());
 		paymentRepository.save(payment);
 	}
 

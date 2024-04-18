@@ -1,19 +1,36 @@
 package com.example.pigonair.domain.payment.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.example.pigonair.domain.payment.dto.PaymentRequestDto.*;
+
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import com.example.pigonair.domain.email.EmailService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class PaymentEventListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(PaymentEventListener.class);
+	private final PaymentService paymentService;
+	private final EmailService emailService;
 
-    @RabbitListener(queues = "payment.queue")
-    public void handlePaymentCompletedEvent(String paymentId) {
-        // 결제 완료 이벤트를 로그에 기록
-        System.out.printf("Payment completed for payment ID: {}", paymentId+"\n");
-        logger.info("Payment completed for payment ID: {}", paymentId);
-    }
+	@RabbitListener(queues = "payment.queue")
+	public void handlePaymentCompletedEvent(PostPayRequestDto requestDto) {
+		try {
+			System.out.printf("Payment completed for payment ID: {}", requestDto.paidAmount() + "\n");
+			paymentService.savePayInfo(requestDto);
+
+			String recipientEmail = requestDto.email();
+			String subject = "Payment Completed";
+			String body = "Payment completed for payment ID: " + requestDto.paidAmount();
+			emailService.sendEmail(recipientEmail, subject, body);
+		} catch (Exception ex) {
+			log.error("Payment 처리 중 오류 발생: {}", ex.getMessage(), ex);
+		}
+
+	}
 }

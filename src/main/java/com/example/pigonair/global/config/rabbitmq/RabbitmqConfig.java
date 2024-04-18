@@ -84,13 +84,13 @@ public class RabbitmqConfig {
         return rabbitTemplate;
     }
 
-    @Bean
-    SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
-        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-        factory.setConnectionFactory(connectionFactory);
-        factory.setConcurrentConsumers(10); // 병렬 소비자 수
-        factory.setMaxConcurrentConsumers(10); // 최대 병렬 소비자 수
-        factory.setPrefetchCount(10); // prefetch count 설정
-        return factory;
-    }
+    // @Bean
+    // SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+    //     SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+    //     factory.setConnectionFactory(connectionFactory);
+    //     factory.setConcurrentConsumers(10); // 병렬 소비자 수
+    //     factory.setMaxConcurrentConsumers(10); // 최대 병렬 소비자 수
+    //     factory.setPrefetchCount(10); // prefetch count 설정
+    //     return factory;
+    // }
 }
