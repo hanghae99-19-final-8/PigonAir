@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.pigonair.domain.member.entity.Member;
+import com.example.pigonair.domain.payment.dto.EmailDto;
 import com.example.pigonair.domain.payment.dto.PaymentRequestDto.PostPayRequestDto;
 import com.example.pigonair.domain.payment.dto.PaymentResponseDto.PayResponseDto;
 import com.example.pigonair.domain.payment.entity.Payment;
@@ -64,26 +65,26 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new CustomException(PAYMENT_AMOUNT_MISMATCH);
 		}
 
-
-
 		//결제 후 결제 여부 변경
 		reservation.updateIsPayment();
-
-		sendPaymentCompletedEvent(requestDto);
+		Long paymentId = savePayInfo(requestDto);
+		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(paymentId, requestDto.email());
+		sendPaymentCompletedEvent(emailSendDto);
 
 	}
 
-	private void sendPaymentCompletedEvent(PostPayRequestDto requestDto) {
-		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", requestDto);
+	private void sendPaymentCompletedEvent(EmailDto.EmailSendDto emailSendDto) {
+		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
 	}
 
 	@Override
 	@Transactional
-	public void savePayInfo(PostPayRequestDto postPayRequestDto) { // 추후 데이터 삽입 시 외래키만 삽입하는 것으로 변경하는 것 고려
+	public Long savePayInfo(PostPayRequestDto postPayRequestDto) { // 추후 데이터 삽입 시 외래키만 삽입하는 것으로 변경하는 것 고려
 		Reservation reservation = reservationRepository.findById(postPayRequestDto.id()).orElseThrow(() ->
 			new CustomException(RESERVATION_NOT_FOUND));
 		Payment payment = new Payment(reservation, postPayRequestDto.serialNumber());
-		paymentRepository.save(payment);
+		Payment savePayment = paymentRepository.save(payment);
+		return savePayment.getId();
 	}
 
 	@Transactional

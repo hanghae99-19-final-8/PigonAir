@@ -8,7 +8,7 @@ public interface PaymentService {
 	//결제 이후 예약의 isPayment 필드를 변경
 	void postPayProcess(PostPayRequestDto requestDto);
 
-	void savePayInfo(PostPayRequestDto postPayRequestDto);
+	Long savePayInfo(PostPayRequestDto postPayRequestDto);
 
 	PayResponseDto payProcess(Long ReservationId, Member member);
 }
