@@ -11,14 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.pigonair.domain.member.entity.Member;
-import com.example.pigonair.domain.payment.dto.EmailDto;
 import com.example.pigonair.domain.payment.dto.PaymentRequestDto.PostPayRequestDto;
 import com.example.pigonair.domain.payment.dto.PaymentResponseDto.PayResponseDto;
 import com.example.pigonair.domain.payment.entity.Payment;
 import com.example.pigonair.domain.payment.repository.PaymentRepository;
 import com.example.pigonair.domain.reservation.entity.Reservation;
 import com.example.pigonair.domain.reservation.repository.ReservationRepository;
-import com.example.pigonair.domain.seat.entity.Seat;
 import com.example.pigonair.global.config.common.exception.CustomException;
 import com.example.pigonair.global.config.common.ulid.Ulid;
 
@@ -28,11 +26,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
+	private final PostPaymentService postPaymentService;
 	private final ReservationRepository reservationRepository;
 	private final PaymentRepository paymentRepository;
 	@Value("${iamport.impKey}")
 	private String impKey;
-	private final RabbitTemplate rabbitTemplate;
+	// private final RabbitTemplate rabbitTemplate;
 
 	@Override
 	@Transactional
@@ -64,18 +63,19 @@ public class PaymentServiceImpl implements PaymentService {
 			// 결제 금액 불일치 에러
 			throw new CustomException(PAYMENT_AMOUNT_MISMATCH);
 		}
+		reservation.updateIsPayment();
+		postPaymentService.savePayInfoAndSendMail(requestDto);
 
 		//결제 후 결제 여부 변경
-		reservation.updateIsPayment();
-		Long paymentId = savePayInfo(requestDto);
-		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(paymentId, requestDto.email());
-		sendPaymentCompletedEvent(emailSendDto);
+		// Long paymentId = savePayInfo(requestDto);
+		// EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(paymentId, requestDto.email());
+		// sendPaymentCompletedEvent(emailSendDto);
 
 	}
 
-	private void sendPaymentCompletedEvent(EmailDto.EmailSendDto emailSendDto) {
-		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
-	}
+	// private void sendPaymentCompletedEvent(EmailDto.EmailSendDto emailSendDto) {
+	// 	rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
+	// }
 
 	@Override
 	@Transactional
@@ -87,14 +87,14 @@ public class PaymentServiceImpl implements PaymentService {
 		return savePayment.getId();
 	}
 
-	@Transactional
-	public void updateSeatUnAvailable(Reservation reservation) {
-		Seat seat = reservation.getSeat();
-		if (!seat.isAvailable()) {
-			throw new CustomException(UNAVAILABLE_SEAT);
-		}
-		seat.updateIsAvailable();
-	}
+	// @Transactional
+	// public void updateSeatUnAvailable(Reservation reservation) {
+	// 	Seat seat = reservation.getSeat();
+	// 	if (!seat.isAvailable()) {
+	// 		throw new CustomException(UNAVAILABLE_SEAT);
+	// 	}
+	// 	seat.updateIsAvailable();
+	// }
 
 	private String getUlid() {
 		Ulid ulid = new Ulid();
