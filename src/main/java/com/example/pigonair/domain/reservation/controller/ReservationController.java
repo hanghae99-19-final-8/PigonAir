@@ -46,7 +46,7 @@ public class ReservationController {
 		}
 	}
 
-	@GetMapping("/reservation") // 예약 진행
+	@GetMapping("/reservation")	// 예약 확인
 	public String getReservations(@AuthenticationPrincipal UserDetailsImpl userDetails,
 		Model model) {
 		try {
