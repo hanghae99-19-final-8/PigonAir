@@ -53,7 +53,6 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.5'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-
     runtimeOnly 'com.h2database:h2'
 }
 
