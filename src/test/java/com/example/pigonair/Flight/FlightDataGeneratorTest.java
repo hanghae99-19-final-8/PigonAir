@@ -67,7 +67,7 @@ public class FlightDataGeneratorTest {
 
 	@Test
 	public void generateRandomFlights() {
-		int numberOfFlights = 100;
+		int numberOfFlights = 50000;
 		int flightSizeBefore = flightRepository.findAll().size();
 		generateRandomFlightData(numberOfFlights);
 		int flightSizeAfter = flightRepository.findAll().size();
