@@ -46,14 +46,21 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	@Transactional
 	public void postPayProcess(PostPayRequestDto requestDto) {
-		Optional<Reservation> optionalReservation = reservationRepository.findById(requestDto.id());
-		// 예약을 찾지 못할 경우 null 반환
-		if (optionalReservation.isEmpty()) {
-			throw new CustomException(RESERVATION_NOT_FOUND);
-		}
-		Reservation reservation = optionalReservation.get();
+		Reservation reservation = reservationRepository.findById(requestDto.id()).orElseThrow(() ->
+			new CustomException(RESERVATION_NOT_FOUND));
 
-		// 이미 결제된 예약인지 확인
+		checkPay(requestDto, reservation);
+		reservation.updateIsPayment();
+		postPaymentService.savePayInfoAndSendMail(requestDto);
+
+		//결제 후 결제 여부 변경
+		// Long paymentId = savePayInfo(requestDto);
+		// EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(paymentId, requestDto.email());
+		// sendPaymentCompletedEvent(emailSendDto);
+
+	}
+
+	private static void checkPay(PostPayRequestDto requestDto, Reservation reservation) {
 		if (reservation.isPayment()) {
 			throw new CustomException(ALREADY_PAID_RESERVATION);
 		}
@@ -63,14 +70,6 @@ public class PaymentServiceImpl implements PaymentService {
 			// 결제 금액 불일치 에러
 			throw new CustomException(PAYMENT_AMOUNT_MISMATCH);
 		}
-		reservation.updateIsPayment();
-		postPaymentService.savePayInfoAndSendMail(requestDto);
-
-		//결제 후 결제 여부 변경
-		// Long paymentId = savePayInfo(requestDto);
-		// EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(paymentId, requestDto.email());
-		// sendPaymentCompletedEvent(emailSendDto);
-
 	}
 
 	// private void sendPaymentCompletedEvent(EmailDto.EmailSendDto emailSendDto) {
