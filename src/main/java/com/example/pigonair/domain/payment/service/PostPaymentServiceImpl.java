@@ -39,7 +39,7 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 		log.info("run() - 현재 id: {}", Thread.currentThread().getId());
 		Long paymentId = savePayInfo(postPayRequestDto);
 		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(paymentId, postPayRequestDto.email());
-		sendEmailToMessageQ(emailSendDto);	// 메세지 큐 이용
+		// sendEmailToMessageQ(emailSendDto);	// 메세지 큐 이용
 		// sendEmail(emailSendDto);	// @Async 이용
 	}
 
