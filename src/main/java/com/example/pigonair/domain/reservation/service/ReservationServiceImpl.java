@@ -22,6 +22,8 @@ import com.example.pigonair.global.config.common.exception.CustomException;
 import com.example.pigonair.global.config.common.exception.ErrorCode;
 import com.example.pigonair.global.config.security.UserDetailsImpl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,6 +34,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final FlightRepository flightRepository;
     private final MemberRepository memberRepository;
     private final SeatRepository seatRepository;
+    private final EntityManager entityManager;
 
 	@Override
 	@Transactional
@@ -45,6 +48,7 @@ public class ReservationServiceImpl implements ReservationService {
         Flight flight = getFlight(seat);    // 비행기 가져오기
 
         checkIsAvailableSeat(seat); // 예약 가능한 좌석인지 확인
+        entityManager.lock(seat, LockModeType.PESSIMISTIC_WRITE);
 
         Reservation reservation = makeReservation(member, seat, flight);    // 예약 만들기
         seat.seatPick();    // 좌석 예매 불가로 변경
