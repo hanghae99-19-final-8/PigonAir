@@ -2,11 +2,6 @@ package com.example.pigonair.domain.payment.service;
 
 import static com.example.pigonair.global.config.common.exception.ErrorCode.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PostPaymentServiceImpl implements PostPaymentService {
 	private final ReservationRepository reservationRepository;
 	private final PaymentRepository paymentRepository;
-	private final RabbitTemplate rabbitTemplate;
+	// private final RabbitTemplate rabbitTemplate;
 	private final EmailService emailService;
 
 
@@ -68,9 +63,9 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 	// 	}
 	// }
 
-	private void sendEmailToMessageQ(EmailDto.EmailSendDto emailSendDto) {
-		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
-	}
+	// private void sendEmailToMessageQ(EmailDto.EmailSendDto emailSendDto) {
+	// 	rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
+	// }
 
 
 	private void sendEmail(EmailDto.EmailSendDto emailDto) {
