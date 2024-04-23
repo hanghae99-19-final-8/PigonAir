@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.example.pigonair.domain.email.EmailService;
 import com.example.pigonair.domain.payment.dto.EmailDto;
 import com.example.pigonair.domain.payment.dto.PaymentRequestDto;
 import com.example.pigonair.domain.payment.entity.Payment;
@@ -28,9 +29,8 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 	private final ReservationRepository reservationRepository;
 	private final PaymentRepository paymentRepository;
 	private final RabbitTemplate rabbitTemplate;
+	private final EmailService emailService;
 
-	// 이메일 전송을 위한 배치 큐
-	private final List<EmailDto.EmailSendDto> emailBatchQueue = Collections.synchronizedList(new ArrayList<>());
 
 	@Async("asyncExecutor")
 	@Override
@@ -39,11 +39,13 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 		log.info("run() - 현재 id: {}", Thread.currentThread().getId());
 		Long paymentId = savePayInfo(postPayRequestDto);
 		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(paymentId, postPayRequestDto.email());
-		sendPaymentCompletedEvent(emailSendDto);
+		sendEmailToMessageQ(emailSendDto);	// 메세지 큐 이용
+		// sendEmail(emailSendDto);	// @Async 이용
 	}
 
 	private Long savePayInfo(
-		PaymentRequestDto.PostPayRequestDto postPayRequestDto) { // 추후 데이터 삽입 시 외래키만 삽입하는 것으로 변경하는 것 고려
+		PaymentRequestDto.PostPayRequestDto postPayRequestDto) {
+		// 추후 데이터 삽입 시 외래키만 삽입하는 것으로 변경하는 것 고려
 		Reservation reservation = reservationRepository.findById(postPayRequestDto.id()).orElseThrow(() ->
 			new CustomException(RESERVATION_NOT_FOUND));
 		Payment payment = new Payment(reservation, postPayRequestDto.serialNumber());
@@ -66,7 +68,22 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 	// 	}
 	// }
 
-	private void sendPaymentCompletedEvent(EmailDto.EmailSendDto emailSendDto) {
+	private void sendEmailToMessageQ(EmailDto.EmailSendDto emailSendDto) {
 		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
 	}
+
+
+	private void sendEmail(EmailDto.EmailSendDto emailDto) {
+		try{
+			System.out.println("Payment completed for payment ID : " + emailDto.paymentId() + "\n");
+
+			String recipientEmail = emailDto.email();
+			String subject = "티켓 결제 완료";
+			String body = "티켓 번호: " + emailDto.paymentId();
+			emailService.sendEmail(recipientEmail, subject, body);
+		} catch (Exception ex) {
+			log.error("Payment 처리 중 오류 발생: {}", ex.getMessage(), ex);
+		}
+	}
+
 }
