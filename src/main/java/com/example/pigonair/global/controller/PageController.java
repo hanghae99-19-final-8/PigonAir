@@ -7,6 +7,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import co.elastic.apm.api.ElasticApm;
+import co.elastic.apm.api.Transaction;
+import jakarta.servlet.http.HttpServletRequest;
+
 @Controller
 public class PageController {
 	@GetMapping("/signup")
@@ -21,7 +25,8 @@ public class PageController {
 	}
 
 	@GetMapping("/")
-	public String homePage() {
+	public String homePage(HttpServletRequest request) {
+		setTransactionNameBasedOnJMeterTag(request);
 		return "index";
 	}
 
@@ -33,5 +38,12 @@ public class PageController {
 	@GetMapping("/favicon.ico")
 	@ResponseBody
 	public void returnNoFavicon() {
+	}
+	private void setTransactionNameBasedOnJMeterTag(HttpServletRequest request) {
+		Transaction transaction = ElasticApm.currentTransaction();
+		String threadGroupName = request.getHeader("X-ThreadGroup-Name");
+		if (threadGroupName != null && !threadGroupName.isEmpty()) {
+			transaction.setName("Transaction-" + threadGroupName);
+		}
 	}
 }
