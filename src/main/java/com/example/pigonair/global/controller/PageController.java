@@ -42,6 +42,7 @@ public class PageController {
 	private void setTransactionNameBasedOnJMeterTag(HttpServletRequest request) {
 		Transaction transaction = ElasticApm.currentTransaction();
 		String threadGroupName = request.getHeader("X-ThreadGroup-Name");
+		String testPlanName = request.getHeader("X-TestPlan-Name");
 		if (threadGroupName != null && !threadGroupName.isEmpty()) {
 			transaction.setName("Transaction-" + threadGroupName);
 		}

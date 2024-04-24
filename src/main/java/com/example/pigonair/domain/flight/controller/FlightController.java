@@ -17,6 +17,9 @@ import com.example.pigonair.domain.flight.entity.FlightPage;
 import com.example.pigonair.domain.flight.service.FlightService;
 import com.example.pigonair.global.config.common.exception.CustomException;
 
+import co.elastic.apm.api.ElasticApm;
+import co.elastic.apm.api.Transaction;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +61,7 @@ public class FlightController {
 		@RequestParam(defaultValue = "" + DEFAULT_SIZE) int size,
 		@RequestParam(defaultValue = DEFAULT_ORDER_BY) String orderBy,
 		@RequestParam(defaultValue = DEFAULT_ORDER_DIRECTION) String orderDirection,
-		Model model) {
+		Model model, HttpServletRequest request) {
 
 		try {
 			LocalDate startTime = LocalDate.parse(startDate);
@@ -70,6 +73,8 @@ public class FlightController {
 			// FlightPage<FlightResponseDto> flightsPage = flightService.getFlightsByConditions(
 			// 		startDate, endDate, departure, destination, page, size, orderBy, orderDirection);
 			populateModel(model, flightsPage, page, size, orderBy, orderDirection);
+
+			setTransactionNameBasedOnJMeterTag(request);
 		}catch (CustomException ex) {
 			model.addAttribute("ErrorMessage", ex.getErrorCode().getMessage());
 			return "index";
@@ -86,5 +91,13 @@ public class FlightController {
 		model.addAttribute("flightSize", size);
 		model.addAttribute("orderByVal", orderBy);
 		model.addAttribute("orderDirectionVal", orderDirection);
+	}
+	private void setTransactionNameBasedOnJMeterTag(HttpServletRequest request) {
+		Transaction transaction = ElasticApm.currentTransaction();
+		String threadGroupName = request.getHeader("X-ThreadGroup-Name");
+		String testPlanName = request.getHeader("X-TestPlan-Name");
+		if (threadGroupName != null && !threadGroupName.isEmpty()) {
+			transaction.setName("Transaction-" + threadGroupName);
+		}
 	}
 }

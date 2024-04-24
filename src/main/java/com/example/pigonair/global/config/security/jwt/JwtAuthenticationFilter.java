@@ -14,6 +14,8 @@ import com.example.pigonair.global.config.common.exception.ErrorCode;
 import com.example.pigonair.global.config.security.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import co.elastic.apm.api.ElasticApm;
+import co.elastic.apm.api.Transaction;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,6 +56,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 		Authentication authResult) throws IOException, ServletException {
 		log.info("로그인 성공 및 JWT 생성");
+		setTransactionNameBasedOnJMeterTag(request);
 		String email = ((UserDetailsImpl)authResult.getPrincipal()).getUsername();
 		String token = jwtUtil.createToken(email);
 
@@ -66,6 +69,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException failed) throws IOException, ServletException {
 		log.info("로그인 실패");
+		setTransactionNameBasedOnJMeterTag(request);
 		response.setCharacterEncoding("UTF-8");
 		String responseDto = new ObjectMapper().writeValueAsString(
 			Map.of("message", ErrorCode.INVALID_EMAIL_OR_PASSWORD.getMessage()));
@@ -76,5 +80,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		response.getWriter().close();
 		throw new CustomException(ErrorCode.INVALID_EMAIL_OR_PASSWORD);
 
+	}
+	private void setTransactionNameBasedOnJMeterTag(HttpServletRequest request) {
+		Transaction transaction = ElasticApm.currentTransaction();
+		String threadGroupName = request.getHeader("X-ThreadGroup-Name");
+		String testPlanName = request.getHeader("X-TestPlan-Name");
+		if (threadGroupName != null && !threadGroupName.isEmpty()) {
+			transaction.setName("Transaction-" + threadGroupName);
+		}
 	}
 }

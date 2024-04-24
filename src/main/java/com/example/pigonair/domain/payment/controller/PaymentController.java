@@ -15,6 +15,9 @@ import com.example.pigonair.domain.payment.dto.PaymentResponseDto.PayResponseDto
 import com.example.pigonair.domain.payment.service.PaymentServiceImpl;
 import com.example.pigonair.global.config.security.UserDetailsImpl;
 
+import co.elastic.apm.api.ElasticApm;
+import co.elastic.apm.api.Transaction;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -26,26 +29,35 @@ public class PaymentController {
 
 	@GetMapping("/pay/{reservationId}")
 	public String pay(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model,
-		@PathVariable("reservationId") Long id) {
+		@PathVariable("reservationId") Long id, HttpServletRequest request) {
 		PayResponseDto responseDto = paymentService.payProcess(id, userDetails.getUser());
+		setTransactionNameBasedOnJMeterTag(request);
 		model.addAttribute("responseDto", responseDto);
 		return "pay";
 	}
 
 	@PostMapping("/pay")
 	public ResponseEntity<?> postPay(@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@RequestBody PostPayRequestDto requestDto, Model model) {
+		@RequestBody PostPayRequestDto requestDto, Model model, HttpServletRequest request) {
 		try {
 			paymentService.postPayProcess(requestDto);
 			// List<PaymentResponseDto.TicketResponseDto> responseDto = memberService.getTicketPage(userDetails.getUser());
 			// model.addAttribute("responseDto", responseDto);
 			// return "ticket";
+			setTransactionNameBasedOnJMeterTag(request);
 			return ResponseEntity.ok("결제 완료");
-		}catch (Exception e){
+		} catch (Exception e) {
 			return ResponseEntity.badRequest().build();
 		}
 
+	}
 
-
+	private void setTransactionNameBasedOnJMeterTag(HttpServletRequest request) {
+		Transaction transaction = ElasticApm.currentTransaction();
+		String threadGroupName = request.getHeader("X-ThreadGroup-Name");
+		String testPlanName = request.getHeader("X-TestPlan-Name");
+		if (threadGroupName != null && !threadGroupName.isEmpty()) {
+			transaction.setName("Transaction-" + threadGroupName);
+		}
 	}
 }
