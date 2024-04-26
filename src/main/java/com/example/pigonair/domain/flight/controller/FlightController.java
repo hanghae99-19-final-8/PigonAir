@@ -16,9 +16,8 @@ import com.example.pigonair.domain.flight.dto.FlightResponseDto;
 import com.example.pigonair.domain.flight.entity.FlightPage;
 import com.example.pigonair.domain.flight.service.FlightService;
 import com.example.pigonair.global.config.common.exception.CustomException;
+import com.example.pigonair.global.config.jmeter.JmeterService;
 
-import co.elastic.apm.api.ElasticApm;
-import co.elastic.apm.api.Transaction;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FlightController {
 	private final FlightService flightService;
+	private final JmeterService jmeterService;
 
 	private static final int DEFAULT_PAGE = 1;
 	private static final int DEFAULT_SIZE = 10;
@@ -74,7 +74,7 @@ public class FlightController {
 			// 		startDate, endDate, departure, destination, page, size, orderBy, orderDirection);
 			populateModel(model, flightsPage, page, size, orderBy, orderDirection);
 
-			setTransactionNameBasedOnJMeterTag(request);
+			jmeterService.setTransactionNameBasedOnJMeterTag(request);
 		}catch (CustomException ex) {
 			model.addAttribute("ErrorMessage", ex.getErrorCode().getMessage());
 			return "index";
@@ -92,12 +92,5 @@ public class FlightController {
 		model.addAttribute("orderByVal", orderBy);
 		model.addAttribute("orderDirectionVal", orderDirection);
 	}
-	private void setTransactionNameBasedOnJMeterTag(HttpServletRequest request) {
-		Transaction transaction = ElasticApm.currentTransaction();
-		String threadGroupName = request.getHeader("X-ThreadGroup-Name");
-		String testPlanName = request.getHeader("X-TestPlan-Name");
-		if (threadGroupName != null && !threadGroupName.isEmpty()) {
-			transaction.setName("Transaction-" + threadGroupName);
-		}
-	}
+
 }

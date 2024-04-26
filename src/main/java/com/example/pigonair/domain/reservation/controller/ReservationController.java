@@ -18,10 +18,9 @@ import com.example.pigonair.domain.reservation.dto.ReservationRequestDto;
 import com.example.pigonair.domain.reservation.dto.ReservationResponseDto;
 import com.example.pigonair.domain.reservation.service.ReservationService;
 import com.example.pigonair.global.config.common.exception.CustomException;
+import com.example.pigonair.global.config.jmeter.JmeterService;
 import com.example.pigonair.global.config.security.UserDetailsImpl;
 
-import co.elastic.apm.api.ElasticApm;
-import co.elastic.apm.api.Transaction;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReservationController {
 
 	private final ReservationService reservationService;
+	private final JmeterService jmeterService;
 	private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
 	@PostMapping("/reservation") // 예약 진행
@@ -42,7 +42,7 @@ public class ReservationController {
 			reservationService.saveReservation(requestDto, userDetails);
 			long executionTime = System.currentTimeMillis() - startTime;
 			log.info("saveReservation method executed in {} milliseconds", executionTime);
-			setTransactionNameBasedOnJMeterTag(request);
+			jmeterService.setTransactionNameBasedOnJMeterTag(request);
 			return ResponseEntity.ok().build();
 		} catch (CustomException e) {
 			log.error("Error occurred during saveReservation: {}", e.getMessage());
@@ -50,7 +50,7 @@ public class ReservationController {
 		}
 	}
 
-	@GetMapping("/reservation")	// 예약 확인
+	@GetMapping("/reservation")    // 예약 확인
 	public String getReservations(@AuthenticationPrincipal UserDetailsImpl userDetails,
 		Model model, HttpServletRequest request) {
 		try {
@@ -59,7 +59,7 @@ public class ReservationController {
 			long executionTime = System.currentTimeMillis() - startTime;
 			log.info("getReservations method executed in {} milliseconds", executionTime);
 			model.addAttribute("reservations", reservations);
-			setTransactionNameBasedOnJMeterTag(request);
+			jmeterService.setTransactionNameBasedOnJMeterTag(request);
 			return "reservation/reservation_history";
 		} catch (CustomException e) {
 			log.error("Error occurred during getReservations: {}", e.getMessage());
@@ -79,14 +79,6 @@ public class ReservationController {
 		} catch (CustomException e) {
 			log.error("Error occurred during cancelReservation: {}", e.getMessage());
 			return ResponseEntity.status(e.getHttpStatus()).build();
-		}
-	}
-	private void setTransactionNameBasedOnJMeterTag(HttpServletRequest request) {
-		Transaction transaction = ElasticApm.currentTransaction();
-		String threadGroupName = request.getHeader("X-ThreadGroup-Name");
-		String testPlanName = request.getHeader("X-TestPlan-Name");
-		if (threadGroupName != null && !threadGroupName.isEmpty()) {
-			transaction.setName("Transaction-" + threadGroupName);
 		}
 	}
 }

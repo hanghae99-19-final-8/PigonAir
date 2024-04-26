@@ -7,12 +7,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import co.elastic.apm.api.ElasticApm;
-import co.elastic.apm.api.Transaction;
+import com.example.pigonair.global.config.jmeter.JmeterService;
+
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @Controller
+@RequiredArgsConstructor
 public class PageController {
+	private final JmeterService jmeterService;
+
 	@GetMapping("/signup")
 	public String signupPage(Model model) {
 		model.addAttribute("ErrorMessage", null);
@@ -26,7 +30,7 @@ public class PageController {
 
 	@GetMapping("/")
 	public String homePage(HttpServletRequest request) {
-		setTransactionNameBasedOnJMeterTag(request);
+		jmeterService.setTransactionNameBasedOnJMeterTag(request);
 		return "index";
 	}
 
@@ -39,12 +43,5 @@ public class PageController {
 	@ResponseBody
 	public void returnNoFavicon() {
 	}
-	private void setTransactionNameBasedOnJMeterTag(HttpServletRequest request) {
-		Transaction transaction = ElasticApm.currentTransaction();
-		String threadGroupName = request.getHeader("X-ThreadGroup-Name");
-		if (threadGroupName != null && !threadGroupName.isEmpty()) {
-			transaction.setName("Transaction-" + threadGroupName);
-			transaction.addLabel("ThreadGroup", threadGroupName);
-		}
-	}
+
 }
