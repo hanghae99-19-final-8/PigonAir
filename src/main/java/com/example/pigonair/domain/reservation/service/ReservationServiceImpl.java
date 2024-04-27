@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,10 +50,15 @@ public class ReservationServiceImpl implements ReservationService {
 
         checkIsAvailableSeat(seat); // 예약 가능한 좌석인지 확인
         entityManager.lock(seat, LockModeType.PESSIMISTIC_WRITE);
-
-        Reservation reservation = makeReservation(member, seat, flight);    // 예약 만들기
         seat.seatPick();    // 좌석 예매 불가로 변경
-        reservationRepository.save(reservation);
+        Reservation reservation = makeReservation(member, seat, flight);    // 예약 만들기
+        try{
+            seat.seatPick();    // 좌석 예매 불가로 변경
+            reservationRepository.save(reservation);
+        }catch (DataAccessException e){
+            throw new CustomException(ErrorCode.ALREADY_RESERVED_SEAT);
+        }
+
     }
 
     @Transactional
