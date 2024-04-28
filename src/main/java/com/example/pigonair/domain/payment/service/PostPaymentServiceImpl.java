@@ -2,9 +2,10 @@ package com.example.pigonair.domain.payment.service;
 
 import static com.example.pigonair.global.config.common.exception.ErrorCode.*;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 // import com.example.pigonair.domain.email.EmailService;
 
@@ -25,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PostPaymentServiceImpl implements PostPaymentService {
 	private final ReservationRepository reservationRepository;
 	private final PaymentRepository paymentRepository;
-	// private final RabbitTemplate rabbitTemplate;
+	private final RabbitTemplate rabbitTemplate;
 
 	// private final EmailService emailService;
   
@@ -34,11 +35,11 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 	public void savePayInfoAndSendMail(PaymentRequestDto.PostPayRequestDto postPayRequestDto) {
 		log.info("run() - 현재 스레드 개수 : {}", Thread.activeCount());
 		log.info("run() - 현재 id: {}", Thread.currentThread().getId());
-		Long paymentId = savePayInfo(postPayRequestDto);
-		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(paymentId, postPayRequestDto.email());
-		// sendEmailToMessageQ(emailSendDto);	// 메세지 큐 이용
-		// sendEmail(emailSendDto);	// @Async 이용
+		Long ticketId = savePayInfo(postPayRequestDto);
+		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(ticketId, postPayRequestDto.email());
+		sendEmailToMessageQ(emailSendDto);	// 메세지 큐 이용
 	}
+
 
 	private Long savePayInfo(
 		PaymentRequestDto.PostPayRequestDto postPayRequestDto) {
@@ -65,9 +66,9 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 	// 	}
 	// }
 
-	// private void sendEmailToMessageQ(EmailDto.EmailSendDto emailSendDto) {
-	// 	rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
-	// }
+	private void sendEmailToMessageQ(EmailDto.EmailSendDto emailSendDto) {
+		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
+	}
 
 
 	private void sendEmail(EmailDto.EmailSendDto emailDto) {
