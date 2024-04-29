@@ -29,19 +29,14 @@ import lombok.extern.slf4j.Slf4j;
 public class ReservationController {
 
 	private final ReservationService reservationService;
-	private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
 	@PostMapping("/reservation") // 예약 진행
 	public ResponseEntity<?> saveReservation(@RequestBody ReservationRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		try {
-			long startTime = System.currentTimeMillis();
 			reservationService.saveReservation(requestDto, userDetails);
-			long executionTime = System.currentTimeMillis() - startTime;
-			log.info("saveReservation method executed in {} milliseconds", executionTime);
 			return ResponseEntity.ok().build();
 		} catch (CustomException e) {
-			log.error("Error occurred during saveReservation: {}", e.getMessage());
 			return ResponseEntity.status(e.getHttpStatus()).build();
 		}
 	}
@@ -50,10 +45,7 @@ public class ReservationController {
 	public String getReservations(@AuthenticationPrincipal UserDetailsImpl userDetails,
 		Model model) {
 		try {
-			long startTime = System.currentTimeMillis();
 			List<ReservationResponseDto> reservations = reservationService.getReservations(userDetails);
-			long executionTime = System.currentTimeMillis() - startTime;
-			log.info("getReservations method executed in {} milliseconds", executionTime);
 			model.addAttribute("reservations", reservations);
 			return "reservation/reservation_history";
 		} catch (CustomException e) {
@@ -66,10 +58,7 @@ public class ReservationController {
 	public ResponseEntity<?> cancelReservation(@PathVariable Long reservation_id,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		try {
-			long startTime = System.currentTimeMillis();
 			reservationService.cancelReservation(reservation_id, userDetails);
-			long executionTime = System.currentTimeMillis() - startTime;
-			log.info("cancelReservation method executed in {} milliseconds", executionTime);
 			return ResponseEntity.ok().build();
 		} catch (CustomException e) {
 			log.error("Error occurred during cancelReservation: {}", e.getMessage());

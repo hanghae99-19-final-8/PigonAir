@@ -5,9 +5,6 @@ import static com.example.pigonair.global.config.common.exception.ErrorCode.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-// import com.example.pigonair.domain.email.EmailService;
 
 import com.example.pigonair.domain.payment.dto.EmailDto;
 import com.example.pigonair.domain.payment.dto.PaymentRequestDto;
@@ -29,17 +26,21 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 	private final RabbitTemplate rabbitTemplate;
 
 	// private final EmailService emailService;
-  
+
 	@Async("asyncExecutor")
 	@Override
 	public void savePayInfoAndSendMail(PaymentRequestDto.PostPayRequestDto postPayRequestDto) {
-		log.info("run() - 현재 스레드 개수 : {}", Thread.activeCount());
-		log.info("run() - 현재 id: {}", Thread.currentThread().getId());
-		Long ticketId = savePayInfo(postPayRequestDto);
-		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(ticketId, postPayRequestDto.email());
-		sendEmailToMessageQ(emailSendDto);	// 메세지 큐 이용
-	}
+		Long ticketId;
+		try {
+			ticketId = savePayInfo(postPayRequestDto);
+		} catch (Exception e) {
+			// 추후에 결제 취소 로직 추가
+			throw new CustomException(ALREADY_PAID_RESERVATION);
+		}
 
+		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(ticketId, postPayRequestDto.email());
+		sendEmailToMessageQ(emailSendDto);    // 메세지 큐 이용
+	}
 
 	private Long savePayInfo(
 		PaymentRequestDto.PostPayRequestDto postPayRequestDto) {
@@ -51,38 +52,9 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 		return savePayment.getId();
 	}
 
-	// @Scheduled(fixedDelay = 10000) // 10초마다 배치 처리
-	// public void processEmailBatch() {
-	// 	if (!emailBatchQueue.isEmpty()) {
-	// 		log.info("Starting email batch processing...");
-	//
-	// 		List<EmailDto.EmailSendDto> batchToSend = new ArrayList<>(emailBatchQueue);
-	// 		emailBatchQueue.clear(); // 배치 큐 비우기
-	//
-	// 		// 이메일 일괄 전송
-	// 		batchToSend.forEach(this::sendPaymentCompletedEvent);
-	//
-	// 		log.info("Email batch processing completed.");
-	// 	}
-	// }
 
 	private void sendEmailToMessageQ(EmailDto.EmailSendDto emailSendDto) {
 		rabbitTemplate.convertAndSend("payment.exchange", "payment.key", emailSendDto);
-	}
-
-
-	private void sendEmail(EmailDto.EmailSendDto emailDto) {
-		try{
-			System.out.println("Payment completed for payment ID : " + emailDto.paymentId() + "\n");
-
-			String recipientEmail = emailDto.email();
-			String subject = "티켓 결제 완료";
-			String body = "티켓 번호: " + emailDto.paymentId();
-      
-			// emailService.sendEmail(recipientEmail, subject, body);
-		} catch (Exception ex) {
-			log.error("Payment 처리 중 오류 발생: {}", ex.getMessage(), ex);
-		}
 	}
 
 }
