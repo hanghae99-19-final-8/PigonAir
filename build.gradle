@@ -60,6 +60,11 @@ dependencies {
     implementation 'co.elastic.apm:apm-agent-api:1.28.0'
 
     runtimeOnly 'com.h2database:h2'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'com.github.codemonstur:embedded-redis:1.0.0'
+
 }
 
 tasks.named('test') {
