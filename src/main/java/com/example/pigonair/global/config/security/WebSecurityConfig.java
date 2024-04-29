@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import com.example.pigonair.global.config.jmeter.JmeterService;
 import com.example.pigonair.global.config.security.jwt.JwtAuthenticationFilter;
 import com.example.pigonair.global.config.security.jwt.JwtAuthorizationFilter;
 import com.example.pigonair.global.config.security.jwt.JwtExceptionFilter;
@@ -39,6 +40,7 @@ public class WebSecurityConfig {
 		"/apm/**",
 		"/flight/**",
 		"/swagger/**",
+		"/api/v1/queue/allowed/**",
 	};
 
 	private static final String[] SWAGGER_URL_ARRAY = {
@@ -61,6 +63,19 @@ public class WebSecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final CustomAccessDeniedHandler customAccessDeniedHandler;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+	private final JmeterService jmeterService;
+
+	public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl adminDetailsService,
+		AuthenticationConfiguration authenticationConfiguration, CustomAccessDeniedHandler customAccessDeniedHandler,
+		CustomAuthenticationEntryPoint customAuthenticationEntryPoint, JmeterService jmeterService, TokenService tokenService) {
+		this.jwtUtil = jwtUtil;
+		this.userDetailsService = adminDetailsService;
+		this.authenticationConfiguration = authenticationConfiguration;
+		this.customAccessDeniedHandler = customAccessDeniedHandler;
+		this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+		this.jmeterService = jmeterService;
+		this.tokenService = tokenService;
+	}
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -69,7 +84,7 @@ public class WebSecurityConfig {
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-		JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, tokenService);
+		JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, tokenService, jmeterService);
 		filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
 		return filter;
 	}
