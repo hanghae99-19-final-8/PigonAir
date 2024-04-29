@@ -26,11 +26,9 @@ import com.example.pigonair.global.config.security.refreshtoken.TokenService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class WebSecurityConfig {
 	private static final String[] APP_WHITE_LIST = {
 		"/signup",
