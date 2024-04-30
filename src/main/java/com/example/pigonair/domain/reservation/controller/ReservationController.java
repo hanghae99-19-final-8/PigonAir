@@ -18,8 +18,10 @@ import com.example.pigonair.domain.reservation.dto.ReservationRequestDto;
 import com.example.pigonair.domain.reservation.dto.ReservationResponseDto;
 import com.example.pigonair.domain.reservation.service.ReservationService;
 import com.example.pigonair.global.config.common.exception.CustomException;
+import com.example.pigonair.global.config.jmeter.JmeterService;
 import com.example.pigonair.global.config.security.UserDetailsImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,24 +31,29 @@ import lombok.extern.slf4j.Slf4j;
 public class ReservationController {
 
 	private final ReservationService reservationService;
+	private final JmeterService jmeterService;
+
 
 	@PostMapping("/reservation") // 예약 진행
 	public ResponseEntity<?> saveReservation(@RequestBody ReservationRequestDto requestDto,
-		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		@AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletRequest request) {
 		try {
 			reservationService.saveReservation(requestDto, userDetails);
+			jmeterService.setTransactionNameBasedOnJMeterTag(request);
+
 			return ResponseEntity.ok().build();
 		} catch (CustomException e) {
 			return ResponseEntity.status(e.getHttpStatus()).build();
 		}
 	}
 
-	@GetMapping("/reservation")	// 예약 확인
+	@GetMapping("/reservation")    // 예약 확인
 	public String getReservations(@AuthenticationPrincipal UserDetailsImpl userDetails,
-		Model model) {
+		Model model, HttpServletRequest request) {
 		try {
 			List<ReservationResponseDto> reservations = reservationService.getReservations(userDetails);
 			model.addAttribute("reservations", reservations);
+			jmeterService.setTransactionNameBasedOnJMeterTag(request);
 			return "reservation/reservation_history";
 		} catch (CustomException e) {
 			log.error("Error occurred during getReservations: {}", e.getMessage());
