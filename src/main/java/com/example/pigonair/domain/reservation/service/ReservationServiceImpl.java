@@ -3,8 +3,8 @@ package com.example.pigonair.domain.reservation.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,6 @@ import com.example.pigonair.global.config.security.UserDetailsImpl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
-import jakarta.persistence.PessimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +38,7 @@ public class ReservationServiceImpl implements ReservationService {
 	private final MemberRepository memberRepository;
 	private final SeatRepository seatRepository;
 	private final EntityManager entityManager;
+	private AtomicBoolean lock = new AtomicBoolean(false);
 
 	@Override
 	@Transactional
