@@ -92,7 +92,7 @@ public class ReservationServiceImpl implements ReservationService {
 			LocalDateTime departureDate = (LocalDateTime)row[1];
 			Airport origin = (Airport)row[2];
 			Airport destination = (Airport)row[3];
-			Long seatNumber = (Long)row[4];
+			int seatNumber = (int)row[4];
 			Long price = (Long)row[5];
 
 			reservationResponseDtos.add(
