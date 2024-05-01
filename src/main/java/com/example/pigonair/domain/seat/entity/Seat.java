@@ -8,6 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,18 +29,21 @@ public class Seat {
 	private Long price;
 	private int grade;
 	private boolean isAvailable;
+	private int number;
 
 	@Builder
-	public Seat(Flight flight, Long price, int grade, boolean isAvailable) {
+	public Seat(Flight flight, Long price, int grade, boolean isAvailable, int number) {
 		this.flight = flight;
 		this.price = price;
 		this.grade = grade;
 		this.isAvailable = isAvailable;
+		this.number = number;
 	}
 
 	public void updateIsAvailable() {
 		this.isAvailable = false;
 	}
+
 
 	public void seatPick(){
 		if(this.isAvailable)

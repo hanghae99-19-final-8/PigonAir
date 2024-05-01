@@ -19,7 +19,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
 	List<Reservation> findByIsPaymentFalseAndReservationDateBefore(LocalDateTime cutoffDate);
 
-	@Query("SELECT r.id, f.departureTime, f.origin, f.destination, s.id, s.price " +
+	@Query("SELECT r.id, f.departureTime, f.origin, f.destination, s.number, s.price " +
 		"FROM Reservation r " +
 		"JOIN r.flight f " +
 		"JOIN r.seat s " +
