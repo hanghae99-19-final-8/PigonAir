@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -80,35 +79,36 @@ class MemberTests {
 
 	}
 
-	// @Test
-	// @DisplayName("로그인 성공 테스트")
-	// void loginTest() {
-	// 	// given
-	// 	String email = "loginSuccess@test.com";
-	// 	String password = "1234";
-	// 	Member member = Member.builder()
-	// 		.email(email)
-	// 		.password(passwordEncoder.encode(password)) // 비밀번호 암호화하여 저장
-	// 		.name("Test User")
-	// 		.phoneNumber("010-1234-5678")
-	// 		.build();
-	// 	memberRepository.save(member);
-	// 	MemberRequestDto.LoginRequestDto requestDto = new MemberRequestDto.LoginRequestDto(
-	// 		email, password
-	// 	);
-	//
-	// 	// when
-	// 	Authentication authentication = authenticationManager.authenticate(
-	// 		new UsernamePasswordAuthenticationToken(
-	// 			requestDto.email(),
-	// 			requestDto.password()
-	// 		)
-	// 	);
-	//
-	// 	// then
-	// 	assertTrue(authentication.isAuthenticated(), "인증이 성공적으로 완료되어야 합니다.");
-	//
-	// }
+	@Test
+	@DisplayName("로그인 성공 테스트")
+	void loginTest() {
+		// given
+		String email = "loginSuccess@test.com";
+		String password = "1234";
+		Member member = Member.builder()
+			.email(email)
+			.password(passwordEncoder.encode(password)) // 비밀번호 암호화하여 저장
+			.name("Test User")
+			.phoneNumber("010-1234-5678")
+			.build();
+		memberRepository.save(member);
+		MemberRequestDto.LoginRequestDto requestDto = new MemberRequestDto.LoginRequestDto(
+			email, password
+		);
+
+		// when
+		Authentication authentication = authenticationManager.authenticate(
+			new UsernamePasswordAuthenticationToken(
+				requestDto.email(),
+				requestDto.password()
+			)
+		);
+
+		// then
+		assertTrue(authentication.isAuthenticated(), "인증이 성공적으로 완료되어야 합니다.");
+
+	}
+
 	@Test
 	@DisplayName("로그인 실패 테스트")
 	void loginFailureTest() {

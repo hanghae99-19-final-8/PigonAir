@@ -14,6 +14,7 @@ import com.example.pigonair.domain.reservation.entity.Reservation;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+
 	@EntityGraph(attributePaths = {"seat", "flight", "member"})
 	List<Reservation> findAllByMemberId(Long memberId);
 
