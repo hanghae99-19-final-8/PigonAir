@@ -29,14 +29,14 @@ public class FlightServiceImpl implements FlightService {
 	private final FlightRepository flightRepository;
 
 	@Override
-	@Cacheable(value = "flightCache", key = "{#startDate, #departureCode, #destinationCode, #page, #size, #orderBy, #direction}")
+	@Cacheable(value = "flightCache", key = "{#startDate, #departureCode, #destinationCode, #page, #size, #orderBy, #direction}", unless = "#result.isEmpty()")
 	public FlightPage<FlightResponseDto> getFlightsByConditions(String startDate, String endDate,
 		String departureCode, String destinationCode, int page, int size, String orderBy, String direction) {
 
 		LocalDateTime startDateTime;
 		LocalDateTime endDateTime;
 
-		startDateTime =  startTimeParser(startDate);
+		startDateTime = startTimeParser(startDate);
 		endDateTime = endTimeParser(endDate);
 
 		try {
@@ -49,14 +49,16 @@ public class FlightServiceImpl implements FlightService {
 
 			Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-
-			//IllegalArgumentException은 valueof에서 알아서 잡아준다.
 			Airport departure = Airport.valueOf(departureCode);
 			Airport destination = Airport.valueOf(destinationCode);
 
-			log.info(String.valueOf(departure));
-
-			return new FlightPage<>(flightRepository.findByDepartureTimeBetweenAndOriginAndDestination(startDateTime, endDateTime, departure, destination, pageable).map(FlightResponseDto::new));
+			return new FlightPage<>(
+				flightRepository.findByDepartureTimeBetweenAndOriginAndDestination(startDateTime,
+					endDateTime,
+					departure,
+					destination,
+					pageable)
+					.map(FlightResponseDto::new));
 		} catch (IllegalArgumentException ex) {
 			log.error("항공편 검색 조건이 잘못되었습니다.", ex);
 			throw new CustomException(INVALID_SEARCH_CONDITION);
@@ -71,7 +73,6 @@ public class FlightServiceImpl implements FlightService {
 			LocalDate parsedStartDate = LocalDate.parse(startDate);
 			return parsedStartDate.atStartOfDay();
 		} catch (Exception e) {
-			// If parsing as LocalDate fails, assume it's already in LocalDateTime format
 			return LocalDateTime.parse(startDate);
 		}
 	}

@@ -53,9 +53,8 @@
 <body>
 <h1>Flight Search Results</h1>
 
-<h1>Flight Detailed Search</h1>
-<
 <form id="flightSearchForm">
+    <span>Flight Detailed Search</span>
     <div class="mb-3">
         <label for="startTime">출발 시간:</label>
         <input type="time" class="form-control" id="startTime" name="start_time" required>
@@ -176,10 +175,11 @@
         }
 
         // 새 URL 구성
-        const newUrl = `/flight/${currentDateSplit}T${startTime}/${pathSegments[3]}/${pathSegments[4]}/${pathSegments[5]}`;
+        let newPath;
+        newPath = `/flight/${currentDateSplit}T${startTime}/${pathSegments[3]}/${pathSegments[4]}/${pathSegments[5]}`;
 
         // 리다이렉트 실행
-        window.location.href = newUrl;
+        window.location.href = newPath;
     });
 </script>
 </body>
