@@ -34,6 +34,8 @@ public class WebSecurityConfig {
 		"/signup",
 		"/login-page",
 		"/error-page",
+		"/actuator/health",
+		"/actuator/info",
 		"/",
 		"/apm/**",
 		"/flight/**",
