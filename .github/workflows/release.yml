@@ -1,9 +1,10 @@
-name: Release Tag
+name: Create Release Branch And Tag
 
 on:
   push:
     branches:
       - main # main branch로 push될 때 아래 action이 실행됩니다.
+      - release/* # 릴리즈 브랜치로 push될 때 action이 실행되도록 수정
 
 jobs:
   build:
