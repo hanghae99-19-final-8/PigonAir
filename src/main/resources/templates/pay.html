@@ -41,21 +41,23 @@
                             data: JSON.stringify({
                                 "paidAmount": "[[${responseDto.price}]]",
                                 "serialNumber": "[[${responseDto.payUuid}]]",
-                                "id": "[[${responseDto.reservationId}]]"
+                                "id": "[[${responseDto.reservationId}]]",
+                                "email" : "[[${responseDto.memberEmail}]]"
                             }),
                             success: function (response) {
                                 alert('결제가 정상 처리 되었습니다!');
-                                window.location.href = "/";
+                                window.location.href = "/ticket";
                             },
                             error: function (error) {
-                                alert('결제에 실패했습니다!');
+                                alert('Payment verification failed: ' + JSON.stringify(error));
                                 window.location.href = "/ticket";
-                                //alert('Payment verification failed: ' + JSON.stringify(error));
+                                alert('결제에 실패했습니다!    1');
+
                             }
                         });
                     } else {
-                        //alert("success? " + rsp.success + ", Payment failed. Error details: " + JSON.stringify(rsp));
-                        alert('결제에 실패했습니다!');
+                        alert("success? " + rsp.success + ", Payment failed. Error details: " + JSON.stringify(rsp));
+                        alert('결제에 실패했습니다!    2');
                         window.location.href = "/ticket";
                     }
                 });

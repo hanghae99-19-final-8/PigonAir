@@ -54,9 +54,9 @@
 <div id="seatLayout">
   <div class="seat-container">
     <div class="grid-layout">
-      <div th:each="seat, iterStat : ${seats.getData().subList(0, 40)}">
+      <div th:each="seat, iterStat : ${seats.subList(0, 40)}">
         <div th:classappend="${!seat.isAvailable} ? 'seat not-available' : 'seat available'"
-             th:text="${seat.seatId}"
+             th:text="${seat.number}"
              th:attr="data-seat-id=${seat.seatId}"
              onclick="toggleSeatSelection(this)">
         </div>
@@ -65,9 +65,9 @@
   </div>
   <div class="seat-container">
     <div class="grid-layout">
-      <div th:each="seat, iterStat : ${seats.getData().subList(40, 80)}"
+      <div th:each="seat, iterStat : ${seats.subList(40, 80)}"
            th:classappend="${!seat.isAvailable} ? 'seat not-available' : 'seat available'"
-           th:text="${seat.seatId}"
+           th:text="${seat.number}"
            th:attr="data-seat-id=${seat.seatId}"
            onclick="toggleSeatSelection(this)">
       </div>
@@ -83,7 +83,7 @@
 
   function toggleSeatSelection(seatElement) {
     if (selectedSeat === null) {
-      const seatNumber = seatElement.textContent.trim();
+      const seatNumber = seatElement.getAttribute('data-seat-id')
       console.log(seatNumber);
       // 아무 좌석도 선택되지 않은 경우
       if (seatElement.classList.contains('available')) {
@@ -131,6 +131,7 @@
         }).then(response => {
           if (response.ok) {
             // 서버에서 응답을 받은 후 처리
+            alert('예약이 성공적으로 처리되었습니다. 15분내에 결제를 완료해주세요');
             window.location.href = '/reservation';
           } else if (response.status === 404) {
             // 404 Not Found 에러 처리

@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -109,6 +108,7 @@ class MemberTests {
 		assertTrue(authentication.isAuthenticated(), "인증이 성공적으로 완료되어야 합니다.");
 
 	}
+
 	@Test
 	@DisplayName("로그인 실패 테스트")
 	void loginFailureTest() {
