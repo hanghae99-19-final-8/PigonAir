@@ -8,6 +8,8 @@
 name: Pull Request On Dev
 
 on:
+  push:
+    branches: [ "dev" ]
   pull_request:
     branches: [ "dev" ]
 # 사용할 인프라의 이름을 변수 형태로 저장 가능
