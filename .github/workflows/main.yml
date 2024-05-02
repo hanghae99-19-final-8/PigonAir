@@ -8,7 +8,7 @@
 name: Java CI with Gradle
 
 on:
-  pull_request:
+  push:
     branches: [ "main" ]
 # 사용할 인프라의 이름을 변수 형태로 저장 가능
 jobs:
