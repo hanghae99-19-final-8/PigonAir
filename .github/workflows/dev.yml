@@ -8,10 +8,8 @@
 name: Java CI with Gradle
 
 on:
-  push:
-    branches: [ "release" ]
   pull_request:
-    branches: [ "release" ]
+    branches: [ "dev" ]
 # 사용할 인프라의 이름을 변수 형태로 저장 가능
 jobs:
 
@@ -66,8 +64,8 @@ jobs:
       - name: Docker build & push to docker repo
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:release .
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:release
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ github.run_number }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ github.run_number }}
 
   deploy:
     needs: build
@@ -79,6 +77,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
+
       - name: AWS EC2 Connection
         uses: appleboy/ssh-action@master
         with:
@@ -88,7 +87,7 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           timeout: 60s
           script: |
-            sudo docker rm -f $(docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:release
-            sudo bash deploy-release-githubActions.sh 
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ github.run_number }}
+            sudo bash deploy-githubActions.sh ${{ github.run_number }}
             sudo docker image prune -f
+
