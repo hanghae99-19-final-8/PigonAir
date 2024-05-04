@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - release/*  # 릴리즈 브랜치에도 반응하도록 추가
 
 permissions:
   contents: read
