@@ -20,4 +20,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           config-name: release-note.yml  # 설정 파일명 확인 필요
-          commitish: ${{ github.ref }}  # 동적으로 현재 브랜치를 참조하도록 수정
+          commitish: main  # 동적으로 현재 브랜치를 참조하도록 수정
