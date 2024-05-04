@@ -8,9 +8,8 @@ categories:
   - title: '🫶🏻 앱 사용성 개선에 힘썼습니다.'
     label: 'Improvement'
   - title: '🛠️ 더 나은 코드를 위해 노력하고 있습니다.'
-    labels: 'Refactor'
-  - title: 'ETC'
-    labels: "*"
+    label: 'Refactor'
+
 change-template: '* $TITLE (#$NUMBER) by @$AUTHOR'
 change-title-escapes: '\<*_&#@`'
 exclude-labels:
