@@ -164,11 +164,6 @@
 
     populateAirportOptions();
 
-    startDateInput.addEventListener('change', function () {
-        // Ensure endDate is greater than or equal to startDate
-        endDateInput.min = startDateInput.value;
-    });
-
     function submitFlightSearchForm() {
         // Get form data
         var formData = new FormData(document.getElementById("flightSearchForm"));
