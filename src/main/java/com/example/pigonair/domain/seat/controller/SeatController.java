@@ -62,7 +62,7 @@ public class SeatController {
 		// String token1 = cookie1.orElse(new Cookie("Authorization", "")).getValue();
 
 		if (threadMXBean.getThreadCount() > 1) {
-			ResponseEntity<AllowedUserResponse> response = waitSystem(request, queue, userDetails.getUser().getId());
+			ResponseEntity<AllowedUserResponse> response = waitSystem(request, queue, userDetails.getUser().getId(),flightId);
 			// 허용 불가 상태
 			if (response.getBody() == null || !response.getBody().allowed()) {
 				// 대기 웹페이지로 리다이렉트
@@ -91,7 +91,7 @@ public class SeatController {
 	// 	return "redirect:/new-url";
 	// } //13.124.86.199:9010
 
-	public ResponseEntity<AllowedUserResponse> waitSystem(HttpServletRequest request, String queue, Long userId) {
+	public ResponseEntity<AllowedUserResponse> waitSystem(HttpServletRequest request, String queue, Long userId,Long flightId) {
 
 		Cookie[] cookies = request.getCookies();
 		String cookieName = "user-queue-%s-token".formatted(queue);
@@ -114,6 +114,7 @@ public class SeatController {
 			.path("/api/v1/queue/allowed")
 			.queryParam("queue", queue)
 			.queryParam("user_id", userId)
+			.queryParam("flight_id", flightId)
 			.queryParam("token", token)
 			.encode()
 			.build()

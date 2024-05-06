@@ -7,11 +7,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataAccessException;
 
 import com.example.pigonair.domain.flight.entity.Airport;
 import com.example.pigonair.domain.flight.entity.Flight;
 import com.example.pigonair.domain.flight.repository.FlightRepository;
 import com.example.pigonair.domain.member.entity.Member;
+import org.springframework.dao.DataAccessException;
 import com.example.pigonair.domain.member.repository.MemberRepository;
 import com.example.pigonair.domain.reservation.dto.ReservationRequestDto;
 import com.example.pigonair.domain.reservation.dto.ReservationResponseDto;
@@ -43,7 +45,6 @@ public class ReservationServiceImpl implements ReservationService {
 	@Override
 	@Transactional
 	public void saveReservation(ReservationRequestDto requestDto, UserDetailsImpl userDetails) {
-
 
 		Member member = userDetails.getUser();
 
@@ -142,12 +143,11 @@ public class ReservationServiceImpl implements ReservationService {
 
 	private void makeAndSaveReservation(Member member, Seat seat, Flight flight) {
 		Reservation reservation = makeReservation(member, seat, flight);    // 예약 만들기
-		// try{
-		//     reservationRepository.save(reservation);
-		// }catch (DataAccessException e){
-		//     throw new CustomException(ErrorCode.ALREADY_RESERVED_SEAT);
-		// }
-		reservationRepository.save(reservation);
+		try {
+			reservationRepository.save(reservation);
+		} catch (DataAccessException e) {
+			throw new CustomException(ErrorCode.ALREADY_RESERVED_SEAT);
+		}
 	}
 
 	private void returnSeatIsAvailable(List<Reservation> expiredReservations) {
@@ -175,6 +175,5 @@ public class ReservationServiceImpl implements ReservationService {
 			new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
 		return reservation;
 	}
-
 
 }
