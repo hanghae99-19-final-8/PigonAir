@@ -1,8 +1,5 @@
 package com.example.pigonair.domain.flight.controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -16,7 +13,9 @@ import com.example.pigonair.domain.flight.dto.FlightResponseDto;
 import com.example.pigonair.domain.flight.entity.FlightPage;
 import com.example.pigonair.domain.flight.service.FlightService;
 import com.example.pigonair.global.config.common.exception.CustomException;
+import com.example.pigonair.global.config.jmeter.JmeterService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,28 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FlightController {
 	private final FlightService flightService;
+	private final JmeterService jmeterService;
 
 	private static final int DEFAULT_PAGE = 1;
 	private static final int DEFAULT_SIZE = 10;
 	private static final String DEFAULT_ORDER_BY = "departureTime";
 	private static final String DEFAULT_ORDER_DIRECTION = "ASC";
-
-	@GetMapping("/flight")
-	public String getAllFlights(
-		@RequestParam(defaultValue = "" + DEFAULT_PAGE) int page,
-		@RequestParam(defaultValue = "" + DEFAULT_SIZE) int size,
-		@RequestParam(defaultValue = DEFAULT_ORDER_BY) String orderBy,
-		@RequestParam(defaultValue = DEFAULT_ORDER_DIRECTION) String orderDirection,
-		Model model) {
-		try {
-			Page<FlightResponseDto> flightsPage = flightService.getAllFlights(page, size, orderBy, orderDirection);
-			populateModel(model, flightsPage, page, size, orderBy, orderDirection);
-		} catch (CustomException ex) {
-			model.addAttribute("ErrorMessage", ex.getErrorCode().getMessage());
-			return "index";
-		}
-		return "flight-result";
-	}
 
 	@GetMapping("/flight/{start_date}/{end_date}/{departure}/{destination}")
 	public String getFlightsByConditions(
@@ -58,18 +41,14 @@ public class FlightController {
 		@RequestParam(defaultValue = "" + DEFAULT_SIZE) int size,
 		@RequestParam(defaultValue = DEFAULT_ORDER_BY) String orderBy,
 		@RequestParam(defaultValue = DEFAULT_ORDER_DIRECTION) String orderDirection,
-		Model model) {
+		Model model, HttpServletRequest request) {
 
 		try {
-			LocalDate startTime = LocalDate.parse(startDate);
-			LocalDate endTime = LocalDate.parse(endDate);
-			LocalDateTime startDateTime = startTime.atStartOfDay();
-			LocalDateTime endDateTime = endTime.atTime(LocalTime.MAX);
 			FlightPage<FlightResponseDto> flightsPage = flightService.getFlightsByConditions(
-				startDateTime, endDateTime, departure, destination, page, size, orderBy, orderDirection);
-			// FlightPage<FlightResponseDto> flightsPage = flightService.getFlightsByConditions(
-			// 		startDate, endDate, departure, destination, page, size, orderBy, orderDirection);
+					startDate, endDate, departure, destination, page, size, orderBy, orderDirection);
 			populateModel(model, flightsPage, page, size, orderBy, orderDirection);
+
+			jmeterService.setTransactionNameBasedOnJMeterTag(request);
 		}catch (CustomException ex) {
 			model.addAttribute("ErrorMessage", ex.getErrorCode().getMessage());
 			return "index";
@@ -87,4 +66,5 @@ public class FlightController {
 		model.addAttribute("orderByVal", orderBy);
 		model.addAttribute("orderDirectionVal", orderDirection);
 	}
+
 }

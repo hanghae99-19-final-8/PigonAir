@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -17,12 +16,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.pigonair.domain.seat.dto.AllowedUserResponse;
 import com.example.pigonair.domain.seat.dto.SeatResponseDto;
 import com.example.pigonair.domain.seat.service.SeatService;
+import com.example.pigonair.global.config.jmeter.JmeterService;
 import com.example.pigonair.global.config.security.UserDetailsImpl;
 
 import jakarta.servlet.http.Cookie;
@@ -36,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 public class SeatController {
 
 	private final SeatService seatService;
-	private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
+	private final JmeterService jmeterService;
 
 	RestTemplate restTemplate = new RestTemplate();
 
@@ -52,15 +51,15 @@ public class SeatController {
 		ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 
 		String waitQueueKey = "user-queue-default-token";
-		if(!waitToken.equals("")) {
+		if(!waitToken.equals("default")) {
 			waitQueueAddCookie(response1, waitQueueKey, waitToken);
 		}
 
 		Cookie[] cookies = request.getCookies();
-		Optional<Cookie> cookie1 = Arrays.stream(cookies)
-			.filter(i -> i.getName().equalsIgnoreCase("Authorization"))
-			.findFirst();
-		String token1 = cookie1.orElse(new Cookie("Authorization", "")).getValue();
+		// Optional<Cookie> cookie1 = Arrays.stream(cookies)
+		// 	.filter(i -> i.getName().equalsIgnoreCase("Authorization"))
+		// 	.findFirst();
+		// String token1 = cookie1.orElse(new Cookie("Authorization", "")).getValue();
 
 		if (threadMXBean.getThreadCount() > 1) {
 			ResponseEntity<AllowedUserResponse> response = waitSystem(request, queue, userDetails.getUser().getId(),flightId);
@@ -72,6 +71,7 @@ public class SeatController {
 			} //"https://pigonair-dev.shop/seat/%d".formatted(flightId)
 		}
 		List<SeatResponseDto> seatsDto = seatService.getSeatingChart(flightId);
+		jmeterService.setTransactionNameBasedOnJMeterTag(request);
 		model.addAttribute("seats", seatsDto);
 
 		return "seats/seatList";
