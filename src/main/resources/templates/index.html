@@ -141,7 +141,7 @@
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit"
-            }).replace(/\.\s*/g, '-').replace(/-$/, '');;
+            }).replace(/\.\s*/g, '-').replace(/-$/, '');
 
             console.log(koreanDate);
             startDateInput.setAttribute("min", koreanDate);
@@ -213,10 +213,6 @@
             alertContainer.style.display = 'block';
             return;
         }
-
-        // Construct URL with formatted datetime values
-        var formattedStartDate = startDate.replace("T", " ") + ":00";
-        var formattedEndDate = endDate.replace("T", " ") + ":00";
 
         // Format date-time values in ISO 8601 format
         var formattedStartDateISO = startDate.replace(" ", "T");
