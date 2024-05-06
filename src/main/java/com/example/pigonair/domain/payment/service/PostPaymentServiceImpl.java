@@ -38,8 +38,8 @@ public class PostPaymentServiceImpl implements PostPaymentService {
 			throw new CustomException(ALREADY_PAID_RESERVATION);
 		}
 
-		EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(ticketId, postPayRequestDto.email());
-		sendEmailToMessageQ(emailSendDto);    // 메세지 큐 이용
+		// EmailDto.EmailSendDto emailSendDto = new EmailDto.EmailSendDto(ticketId, postPayRequestDto.email());
+		// sendEmailToMessageQ(emailSendDto);    // 메세지 큐 이용
 	}
 
 	private Long savePayInfo(
