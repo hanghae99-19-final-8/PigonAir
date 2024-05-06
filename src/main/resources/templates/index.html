@@ -135,17 +135,15 @@
 
         // startDateInput과 endDateInput의 값을 업데이트하는 함수
         function updateDates() {
-            var today = new Date();
-            var koreanDate = today.toLocaleDateString("ko-KR", {
+            var today = new Date().toLocaleDateString("en-CA", {
                 timeZone: "Asia/Seoul",
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit"
-            }).replace(/\.\s*/g, '-').replace(/-$/, '');
+            });
 
-            console.log(koreanDate);
-            startDateInput.setAttribute("min", koreanDate);
-            endDateInput.setAttribute("min", koreanDate);
+            startDateInput.min = today;
+            endDateInput.min = today;
         }
 
         startDateInput.addEventListener('change', function () {
@@ -159,6 +157,7 @@
         updateDates();
     });
 </script>
+
 
 <script>
     const departureSelect = document.getElementById('departure');
